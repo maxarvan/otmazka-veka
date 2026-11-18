@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Отмазка Века</title>
+<meta name="description" content="Телешоу-генератор отмазок: крутите барабан и получите идеальную причину взять day off 19 ноября.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #12021f;
+    --bg2: #2a0640;
+    --gold: #ffc93c;
+    --gold-dark: #b8860b;
+    --pink: #ff2e88;
+    --cyan: #27e1ff;
+    --text: #fff6e6;
+    --muted: #c9b6d9;
+    --panel: #1d0830;
+    --tile: #0d2a6b;
+    --tile-on: #fff3c4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Rubik", system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ---------- stage ---------- */
+  .stage {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 110%, #5a0f6e 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 50% -10%, #3b0b5a 0%, transparent 70%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    overflow: hidden;
+  }
+  .poster {
+    position: absolute; inset: 0;
+    background: url("gta6-poster.webp") center / cover no-repeat;
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  .poster::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 45%, rgba(18,2,31,.15), rgba(18,2,31,.6) 100%),
+      linear-gradient(180deg, rgba(18,2,31,.35), rgba(42,6,64,.2) 50%, rgba(18,2,31,.75));
+  }
+  @keyframes drift { from { transform: scale(1.04); } to { transform: scale(1.12) translateY(-1.5%); } }
+  .beam {
+    position: absolute; top: -10%; width: 40vmax; height: 140vh;
+    background: linear-gradient(180deg, rgba(255,240,200,.22), rgba(255,240,200,0) 80%);
+    clip-path: polygon(45% 0, 55% 0, 100% 100%, 0 100%);
+    transform-origin: 50% 0;
+    filter: blur(6px);
+    mix-blend-mode: screen;
+  }
+  .beam.l { left: 2%;  animation: sweepL 7s ease-in-out infinite alternate; }
+  .beam.r { right: 2%; animation: sweepR 8s ease-in-out infinite alternate; }
+  .beam.c { left: calc(50% - 20vmax); background: linear-gradient(180deg, rgba(255,46,136,.18), transparent 75%); animation: sweepC 5s ease-in-out infinite alternate; }
+  @keyframes sweepL { from { transform: rotate(-28deg); } to { transform: rotate(8deg); } }
+  @keyframes sweepR { from { transform: rotate(28deg); } to { transform: rotate(-10deg); } }
+  @keyframes sweepC { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+  .floor {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 28vh;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,201,60,.08) 0 2px, transparent 2px 80px),
+      linear-gradient(180deg, transparent, rgba(0,0,0,.5));
+    transform: perspective(400px) rotateX(55deg);
+    transform-origin: bottom;
+  }
+
+  main {
+    position: relative; z-index: 1;
+    max-width: 1180px; margin: 0 auto;
+    padding: 20px 16px 48px;
+  }
+
+  /* ---------- marquee title ---------- */
+  .marquee {
+    position: relative;
+    margin: 0 auto 10px;
+    max-width: 760px;
+    padding: 18px 24px 16px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #c3122f, #7d0420);
+    border: 4px solid var(--gold);
+    box-shadow: 0 0 0 6px #4a0216, 0 0 40px rgba(255,46,136,.5), inset 0 -8px 20px rgba(0,0,0,.35);
+    text-align: center;
+  }
+  .bulbs { position: absolute; inset: 6px; pointer-events: none; }
+  .bulbs i {
+    position: absolute; width: 10px; height: 10px; border-radius: 50%;
+    background: #fff5c2; box-shadow: 0 0 8px 2px #ffd65c;
+    transform: translate(-50%, -50%);
+    animation: blink 1s steps(1) infinite;
+  }
+  .bulbs i:nth-child(odd) { animation-delay: .5s; }
+  @keyframes blink { 0% { opacity: 1; } 50% { opacity: .25; box-shadow: none; } }
+  .marquee .kicker {
+    font-family: "Rubik", sans-serif; font-weight: 800; letter-spacing: .3em;
+    font-size: clamp(11px, 2.4vw, 14px); color: var(--gold); text-transform: uppercase;
+  }
+  .marquee h1 {
+    margin: 4px 0 2px;
+    font-family: "Russo One", sans-serif; font-weight: 400;
+    font-size: clamp(34px, 8vw, 68px); line-height: 1;
+    color: #fff;
+    text-shadow: 0 3px 0 var(--gold-dark), 0 6px 0 #5a0216, 0 0 30px rgba(255,201,60,.6);
+    letter-spacing: .02em;
+  }
+  .marquee .sub { font-size: clamp(13px, 3vw, 17px); color: #ffe3ea; }
+
+  .ticker {
+    display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+    margin: 14px auto 22px; font-size: 14px; color: var(--muted);
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  }
+  .chip b { color: var(--gold); font-family: "Russo One", sans-serif; font-weight: 400; letter-spacing: .04em; }
+  .live { width: 9px; height: 9px; border-radius: 50%; background: #ff3348; box-shadow: 0 0 8px #ff3348; animation: blink 1.2s steps(1) infinite; }
+
+  /* ---------- layout ---------- */
+  .show {
+    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 28px; align-items: start;
+  }
+  @media (max-width: 900px) { .show { grid-template-columns: 1fr; } }
+
+  /* ---------- wheel ---------- */
+  .wheel-zone { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .wheel-wrap {
+    position: relative;
+    width: min(540px, 100%);
+    aspect-ratio: 1;
+  }
+  .rim {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle, transparent 60%, #2b0b10 60.5%, #e2a92a 63%, #ffe28a 66%, #b77d10 70%, #6b4207 71%);
+    box-shadow: 0 0 60px rgba(255,201,60,.35), 0 25px 50px rgba(0,0,0,.6);
+  }
+  .rim-bulbs { position: absolute; inset: 0; }
+  .rim-bulbs i {
+    position: absolute; width: 3.2%; height: 3.2%; border-radius: 50%;
+    background: #fff8d6; box-shadow: 0 0 10px 3px rgba(255,214,92,.9);
+    transform: translate(-50%, -50%);
+  }
+  .wheel-wrap.idle .rim-bulbs i { animation: blink 1.4s steps(1) infinite; }
+  .wheel-wrap.idle .rim-bulbs i:nth-child(odd) { animation-delay: .7s; }
+  .wheel-wrap.spinning .rim-bulbs i { animation: chase .5s linear infinite; }
+  @keyframes chase { 0%, 60% { opacity: .2; box-shadow: none; } 70% { opacity: 1; } }
+  canvas#wheel {
+    position: absolute; left: 7.5%; top: 7.5%; width: 85%; height: 85%;
+    border-radius: 50%;
+    will-change: transform;
+  }
+  .hub {
+    position: absolute; left: 50%; top: 50%; width: 19%; aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff2b0, #ffc93c 35%, #a86c06 75%, #5c3a02);
+    box-shadow: 0 6px 18px rgba(0,0,0,.55), inset 0 -4px 8px rgba(0,0,0,.35);
+    display: grid; place-items: center;
+    font-family: "Russo One", sans-serif; color: #5a0216; font-size: clamp(12px, 2.6vw, 20px);
+    text-align: center; line-height: 1;
+  }
+  .pointer {
+    position: absolute; left: 50%; top: -1%; width: 11%; aspect-ratio: .8;
+    transform: translateX(-50%); transform-origin: 50% 20%;
+    z-index: 3;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,.6));
+  }
+  .pointer.flick { animation: flick .12s ease-out; }
+  @keyframes flick { 0% { transform: translateX(-50%) rotate(-16deg); } 100% { transform: translateX(-50%) rotate(0); } }
+
+  .spin-btn {
+    position: relative;
+    font-family: "Russo One", sans-serif; font-size: clamp(22px, 5vw, 30px); letter-spacing: .06em;
+    color: #4a0216;
+    padding: 16px 46px; border: 0; border-radius: 999px; cursor: pointer;
+    background: linear-gradient(180deg, #fff1a8, var(--gold) 45%, #d58f00);
+    box-shadow: 0 6px 0 #8a5300, 0 10px 30px rgba(255,201,60,.45), inset 0 2px 0 rgba(255,255,255,.7);
+    transition: transform .08s, box-shadow .08s, filter .2s;
+  }
+  .spin-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .spin-btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 #8a5300, 0 4px 14px rgba(255,201,60,.4), inset 0 2px 0 rgba(255,255,255,.7); }
+  .spin-btn:disabled { filter: grayscale(.6) brightness(.7); cursor: default; }
+  .spin-btn:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; }
+  .spin-btn.pulse:not(:disabled) { animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 6px 0 #8a5300, 0 10px 50px rgba(255,201,60,.85), inset 0 2px 0 rgba(255,255,255,.7); } }
+
+  .host {
+    display: flex; align-items: center; gap: 12px; max-width: 520px; width: 100%;
+  }
+  .host .avatar {
+    flex: none; width: 54px; height: 54px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #ffd9b0 0 30%, transparent 31%), radial-gradient(circle at 50% 110%, #1b1b1b 0 55%, transparent 56%), linear-gradient(#ff2e88, #7d0420);
+    border: 3px solid var(--gold);
+    display: grid; place-items: center; font-size: 26px;
+  }
+  .bubble {
+    position: relative; flex: 1;
+    background: #fff; color: #2a0640; border-radius: 16px; padding: 10px 14px;
+    font-weight: 600; font-size: 15px; line-height: 1.35;
+  }
+  .bubble::before {
+    content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+    border: 8px solid transparent; border-right-color: #fff; border-left: 0;
+  }
+
+  /* ---------- board ---------- */
+  .board {
+    background: linear-gradient(180deg, rgba(26,10,58,.82), rgba(14,4,36,.88));
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    border: 4px solid #3a1d6e; border-radius: 24px;
+    box-shadow: 0 0 0 2px #000, 0 20px 50px rgba(0,0,0,.5), inset 0 0 40px rgba(39,225,255,.08);
+    padding: 20px;
+  }
+  .board h2 {
+    margin: 0 0 12px; font-family: "Russo One", sans-serif; font-weight: 400;
+    font-size: 15px; letter-spacing: .2em; color: var(--cyan); text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .board h2::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, rgba(39,225,255,.5), transparent); }
+
+  .tiles { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 56px; margin-bottom: 18px; }
+  .tile {
+    width: clamp(28px, 7vw, 44px); aspect-ratio: .8;
+    perspective: 400px;
+  }
+  .tile .in {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d; transition: transform .45s cubic-bezier(.3,1.4,.5,1);
+  }
+  .tile.on .in { transform: rotateY(180deg); }
+  .tile .f, .tile .b {
+    position: absolute; inset: 0; backface-visibility: hidden; border-radius: 6px;
+    display: grid; place-items: center;
+  }
+  .tile .f {
+    background: linear-gradient(180deg, #1650c9, var(--tile));
+    border: 2px solid #4f86ff; box-shadow: inset 0 0 10px rgba(0,0,0,.5);
+  }
+  .tile .b {
+    transform: rotateY(180deg);
+    background: var(--tile-on); border: 2px solid var(--gold);
+    color: #1a0a3a; font-family: "Russo One", sans-serif; font-size: clamp(16px, 4vw, 26px);
+  }
+  .tile.gap { width: clamp(10px, 2vw, 16px); }
+
+  .excuse {
+    min-height: 120px;
+    background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.18);
+    border-radius: 16px; padding: 16px 18px;
+    font-size: clamp(17px, 2.6vw, 21px); line-height: 1.45; font-weight: 600;
+  }
+  .excuse.placeholder { color: var(--muted); font-weight: 400; font-size: 16px; display: grid; place-items: center; text-align: center; }
+  .caret { display: inline-block; width: 2px; height: 1.1em; background: var(--gold); vertical-align: -3px; margin-left: 2px; animation: blink .8s steps(1) infinite; }
+
+  .meter { margin: 18px 0 6px; }
+  .meter-top { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  .meter-top b { color: var(--text); font-family: "Russo One", sans-serif; font-weight: 400; }
+  .meter-bar { height: 16px; border-radius: 999px; background: #000; border: 2px solid #3a1d6e; overflow: hidden; }
+  .meter-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #ff3348, #ffc93c 50%, #3dff8a);
+    background-size: 300% 100%;
+    transition: width 1.2s cubic-bezier(.2,.8,.2,1);
+  }
+  .verdict { font-size: 14px; color: var(--muted); min-height: 20px; }
+
+  .letter {
+    margin-top: 18px; display: none;
+  }
+  .letter.show { display: block; animation: rise .5s ease-out; }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+  .letter textarea {
+    width: 100%; min-height: 150px; resize: vertical;
+    background: #fffdf5; color: #241032;
+    border: 0; border-radius: 12px; padding: 14px;
+    font: 15px/1.5 "Rubik", sans-serif;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .btn {
+    flex: 1 1 160px;
+    font: 600 15px "Rubik", sans-serif; color: var(--text);
+    padding: 12px 16px; border-radius: 12px; cursor: pointer;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2);
+    transition: background .15s;
+  }
+  .btn:hover { background: rgba(255,255,255,.16); }
+  .btn.primary { background: var(--pink); border-color: var(--pink); color: #fff; }
+  .btn.primary:hover { background: #ff4f9b; }
+  .btn:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+
+  .stats { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .stat { flex: 1 1 120px; text-align: center; padding: 10px; border-radius: 12px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); }
+  .stat b { display: block; font-family: "Russo One", sans-serif; font-weight: 400; font-size: 24px; color: var(--gold); }
+  .stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  .sound-toggle {
+    position: fixed; right: 14px; bottom: 14px; z-index: 5;
+    width: 46px; height: 46px; border-radius: 50%;
+    background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.25); color: #fff;
+    font-size: 20px; cursor: pointer;
+  }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; opacity: .7; }
+
+  /* jackpot flash */
+  .flash { position: fixed; inset: 0; z-index: 4; pointer-events: none; background: radial-gradient(circle, rgba(255,201,60,.55), transparent 70%); opacity: 0; }
+  .flash.go { animation: flash 1.2s ease-out; }
+  @keyframes flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+  canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px);
+    background: #fff; color: #2a0640; font-weight: 600; padding: 10px 18px; border-radius: 999px;
+    z-index: 7; transition: transform .3s;
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .poster, .beam, .bulbs i, .rim-bulbs i, .live { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="stage" aria-hidden="true">
+  <div class="poster"></div>
+  <div class="beam l"></div><div class="beam c"></div><div class="beam r"></div>
+  <div class="floor"></div>
+</div>
+<div class="flash" id="flash"></div>
+<canvas id="confetti"></canvas>
+
+<main>
+  <header class="marquee">
+    <div class="bulbs" id="bulbs"></div>
+    <div class="kicker">Телеигра в прямом эфире</div>
+    <h1>ОТМАЗКА ВЕКА</h1>
+    <div class="sub">Разыгрываем выходной на <b>19 ноября</b>. Причина: сами знаете какая.</div>
+  </header>
+
+  <div class="ticker">
+    <span class="chip"><span class="live"></span> В ЭФИРЕ</span>
+    <span class="chip">До 19 ноября: <b id="countdown">--:--:--</b></span>
+    <span class="chip">Главный приз: <b>DAY OFF</b></span>
+  </div>
+
+  <section class="show">
+    <div class="wheel-zone">
+      <div class="wheel-wrap idle" id="wheelWrap">
+        <div class="rim"></div>
+        <canvas id="wheel" width="600" height="600" aria-label="Барабан с категориями отмазок" role="img"></canvas>
+        <div class="rim-bulbs" id="rimBulbs"></div>
+        <div class="hub">DAY<br>OFF</div>
+        <svg class="pointer" id="pointer" viewBox="0 0 80 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="pg" x1="0" x2="1">
+              <stop offset="0" stop-color="#fff1a8"/><stop offset=".5" stop-color="#ffc93c"/><stop offset="1" stop-color="#b77d10"/>
+            </linearGradient>
+          </defs>
+          <path d="M40 98 L6 26 A36 36 0 1 1 74 26 Z" fill="url(#pg)" stroke="#5a0216" stroke-width="4"/>
+          <circle cx="40" cy="30" r="11" fill="#c3122f" stroke="#5a0216" stroke-width="3"/>
+        </svg>
+      </div>
+      <button class="spin-btn pulse" id="spinBtn">КРУТИТЬ!</button>
+      <div class="host">
+        <div class="avatar" aria-hidden="true">🎤</div>
+        <div class="bubble" id="hostLine">Добрый вечер, уважаемые прогульщики! Крутите барабан — и начальник ничего не заподозрит.</div>
+      </div>
+    </div>
+
+    <div class="board">
+      <h2>Табло</h2>
+      <div class="tiles" id="tiles" aria-live="polite"></div>
+
+      <h2>Ваша отмазка</h2>
+      <div class="excuse placeholder" id="excuse">Барабан ещё не крутили.<br>Отмазка появится здесь.</div>
+
+      <div class="meter">
+        <div class="meter-top"><span>Правдоподобность</span><b id="meterVal">—</b></div>
+        <div class="meter-bar"><div class="meter-fill" id="meterFill"></div></div>
+      </div>
+      <div class="verdict" id="verdict"></div>
+
+      <div class="letter" id="letter">
+        <h2>Письмо начальнику</h2>
+        <textarea id="letterText" aria-label="Текст письма начальнику"></textarea>
+        <div class="row">
+          <button class="btn primary" id="copyBtn">📋 Скопировать</button>
+          <button class="btn" id="againBtn">🎡 Крутить ещё</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b id="statSpins">0</b><span>вращений</span></div>
+        <div class="stat"><b id="statBest">—</b><span>лучшая правдоподобность</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Все совпадения с реальными причинами случайны. Ответственность за одобрение отпуска несёт начальник.</footer>
+</main>
+
+<button class="sound-toggle" id="soundBtn" aria-label="Звук">🔊</button>
+<div class="toast" id="toast">Скопировано!</div>
+
+<script>
+(() => {
+  // ---------- data ----------
+  const SECTORS = [
+    { name: "ЗДОРОВЬЕ",  color: "#e8173b", text: "#fff" },
+    { name: "СЕМЬЯ",     color: "#ffb000", text: "#3a0010" },
+    { name: "ЖКХ",       color: "#1b5fe0", text: "#fff" },
+    { name: "ТРАНСПОРТ", color: "#13b36b", text: "#fff" },
+    { name: "ПИТОМЦЫ",   color: "#ff2e88", text: "#fff" },
+    { name: "ТЕХНИКА",   color: "#7b2cf0", text: "#fff" },
+    { name: "МИСТИКА",   color: "#0fb8d6", text: "#062033" },
+    { name: "ЧЕСТНОСТЬ", color: "#111111", text: "#ffc93c", jackpot: true },
+  ];
+
+  const EXCUSES = {
+    "ЗДОРОВЬЕ": [
+      ["Обострилась аллергия на офисный кондиционер — врач прописал сутки полного покоя на диване.", 62],
+      ["Потянул палец, которым кликаю мышкой. Нужен день реабилитации — разрабатывать буду на геймпаде.", 31],
+      ["Проснулся с температурой 37,2. Не смертельно, но заражать коллег совесть не позволяет.", 74],
+      ["Окулист сказал, что глазам срочно нужен отдых от Excel. Именно от Excel.", 48],
+      ["Сорвал спину, пока нёс домой очень тяжёлую коробку. Не спрашивайте, что в ней.", 55],
+    ],
+    "СЕМЬЯ": [
+      ["Приезжает двоюродный брат из Майами. Надо встретить и показать ему город.", 58],
+      ["У бабушки праздник, и я обещал провести с ней весь день. Она ждала этого 13 лет.", 44],
+      ["Племянник попросил помочь с проектом по географии «Жизнь в штате Флорида». Это надолго.", 39],
+      ["Семейный совет постановил: 19 ноября я сижу дома. Решение обжалованию не подлежит.", 51],
+    ],
+    "ЖКХ": [
+      ["С 10 до 18 придёт сантехник. Возможно. А может, и нет. Но ждать надо весь день.", 86],
+      ["Соседи сверху затопили. Нужно сидеть дома и героически держать ведро.", 77],
+      ["Управляющая компания меняет счётчики. Сказали «в течение дня» — вы понимаете.", 83],
+      ["Отключили воду и интернет. Работает только розетка у телевизора… то есть у холодильника.", 42],
+    ],
+    "ТРАНСПОРТ": [
+      ["Мою машину угнали. Придётся весь день искать её по всему городу.", 47],
+      ["Шиномонтаж записал меня на 19-е «на весь день». Сезонная смена резины — дело серьёзное.", 68],
+      ["Застрял в пробке. Начиная с сегодняшнего вечера и до послезавтра.", 22],
+      ["Все автобусы в городе отменили до 20 ноября. Все. Я проверял.", 18],
+    ],
+    "ПИТОМЦЫ": [
+      ["Кот заболел и требует круглосуточного присмотра. Лежит на клавиатуре, работать невозможно.", 64],
+      ["Собака съела ключи от квартиры. Ждём естественного развития событий.", 35],
+      ["Попугай выучил слово «увольняюсь» и кричит его на всех созвонах. Нужен день на перевоспитание.", 29],
+      ["Сбежал хомяк. Объявлен план «Перехват». Уровень розыска — пять звёзд.", 26],
+    ],
+    "ТЕХНИКА": [
+      ["Обновляется Windows. Прогресс — 1%, осталось «около суток». Отойти от компьютера боюсь.", 57],
+      ["Роутер сломался, а мастер провайдера приедет только 19-го. С 9 до 21.", 81],
+      ["Скачиваю очень важный файл на 150 ГБ. Если отойду — всё оборвётся.", 33],
+      ["Тестирую новую видеокарту под полной нагрузкой. Температуру нужно контролировать лично.", 40],
+    ],
+    "МИСТИКА": [
+      ["Ретроградный Меркурий. Звёзды категорически не советуют 19 ноября выходить из дома.", 24],
+      ["Гадалка предсказала: 19 ноября в офисе меня ждёт тоска. А гадалкам я верю.", 19],
+      ["Мне приснился офис, где все в гавайских рубашках и под пальмами. Это знак.", 15],
+      ["По лунному календарю 19 ноября — благоприятный день для виртуальных путешествий.", 21],
+    ],
+    "ЧЕСТНОСТЬ": [
+      ["Выходит GTA 6. Я ждал этого 13 лет. Вы правда думаете, что я приду?", 100],
+      ["19 ноября у меня встреча с Лусией и Джейсоном. Перенести её невозможно.", 100],
+      ["Беру day off по случаю выхода главной игры десятилетия. Это не обсуждается.", 100],
+    ],
+  };
+
+  const HOST_SPIN = [
+    "Барабан пошёл! Дамы и господа, затаите дыхание…",
+    "Крутится, крутится… Начальник, отвернитесь!",
+    "Студия замерла! Что же выпадет на этот раз?",
+  ];
+  const HOST_RESULT = {
+    normal: [
+      "Сектор «%s» на барабане! Отличный выбор, коллега.",
+      "И выпадает… «%s»! Аплодисменты в студии!",
+      "«%s»! С такой отмазкой не стыдно и в отдел кадров.",
+    ],
+    jackpot: [
+      "СУПЕРИГРА! Сектор «ЧЕСТНОСТЬ»! Вы готовы сказать правду?!",
+      "Невероятно! «ЧЕСТНОСТЬ»! Риск огромный, но и приз — легендарный!",
+    ],
+  };
+
+  function verdictFor(p) {
+    if (p >= 100) return "Начальник тоже геймер? Тогда одобрено. Если нет — удачи.";
+    if (p >= 80) return "Железобетонно. Даже HR не придерётся.";
+    if (p >= 60) return "Вполне сойдёт. Главное — говорить уверенно.";
+    if (p >= 40) return "Рискованно. Добавьте грустный смайлик.";
+    if (p >= 25) return "Начальник поднимет бровь. Одну.";
+    return "Это не отмазка, это признание. Может, крутанём ещё?";
+  }
+
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const used = new Set();
+  function pickExcuse(cat) {
+    const list = EXCUSES[cat];
+    let fresh = list.filter(e => !used.has(e[0]));
+    if (!fresh.length) { list.forEach(e => used.delete(e[0])); fresh = list; }
+    const e = pick(fresh); used.add(e[0]); return e;
+  }
+
+  // ---------- decorative bulbs ----------
+  (function makeMarqueeBulbs() {
+    const box = document.getElementById("bulbs");
+    const n = 18;
+    const pts = [];
+    for (let i = 0; i <= n; i++) { pts.push([i / n * 100, 0], [i / n * 100, 100]); }
+    for (let i = 1; i < 4; i++) { pts.push([0, i / 4 * 100], [100, i / 4 * 100]); }
+    for (const [x, y] of pts) {
+      const b = document.createElement("i");
+      b.style.left = x + "%"; b.style.top = y + "%";
+      box.appendChild(b);
+    }
+  })();
+  (function makeRimBulbs() {
+    const box = document.getElementById("rimBulbs");
+    const n = 24;
+    for (let i = 0; i < n; i++) {
+      const a = i / n * Math.PI * 2;
+      const b = document.createElement("i");
+      b.style.left = (50 + Math.cos(a) * 46.2) + "%";
+      b.style.top = (50 + Math.sin(a) * 46.2) + "%";
+      b.style.animationDelay = (i % 3) * 0.166 + "s";
+      box.appendChild(b);
+    }
+  })();
+
+  // ---------- wheel drawing ----------
+  const canvas = document.getElementById("wheel");
+  const ctx = canvas.getContext("2d");
+  const N = SECTORS.length;
+  const SEG = Math.PI * 2 / N;
+
+  function drawWheel() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const size = 600 * dpr;
+    canvas.width = size; canvas.height = size;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const c = 300, r = 298;
+    ctx.clearRect(0, 0, 600, 600);
+    for (let i = 0; i < N; i++) {
+      const s = SECTORS[i];
+      const a0 = -Math.PI / 2 + i * SEG, a1 = a0 + SEG;
+      ctx.beginPath(); ctx.moveTo(c, c); ctx.arc(c, c, r, a0, a1); ctx.closePath();
+      const g = ctx.createRadialGradient(c, c, 40, c, c, r);
+      g.addColorStop(0, shade(s.color, -30)); g.addColorStop(.6, s.color); g.addColorStop(1, shade(s.color, 25));
+      ctx.fillStyle = g; ctx.fill();
+      ctx.lineWidth = 4; ctx.strokeStyle = "#ffe28a"; ctx.stroke();
+
+      if (s.jackpot) {
+        // star sparkle background
+        ctx.save(); ctx.clip();
+        for (let k = 0; k < 18; k++) {
+          const ang = a0 + Math.random() * SEG, rad = 80 + Math.random() * 200;
+          ctx.fillStyle = "rgba(255,201,60," + (0.25 + Math.random() * 0.5) + ")";
+          star(c + Math.cos(ang) * rad, c + Math.sin(ang) * rad, 2 + Math.random() * 4);
+        }
+        ctx.restore();
+      }
+
+      // label
+      ctx.save();
+      ctx.translate(c, c);
+      ctx.rotate(a0 + SEG / 2);
+      ctx.textAlign = "right"; ctx.textBaseline = "middle";
+      let fs = 30;
+      ctx.font = fs + "px 'Russo One', sans-serif";
+      while (ctx.measureText(s.name).width > 190 && fs > 14) { fs--; ctx.font = fs + "px 'Russo One', sans-serif"; }
+      ctx.lineWidth = 5; ctx.strokeStyle = "rgba(0,0,0,.35)";
+      ctx.strokeText(s.name, r - 32, 0);
+      ctx.fillStyle = s.text;
+      ctx.fillText(s.name, r - 32, 0);
+      ctx.restore();
+    }
+    // inner ring
+    ctx.beginPath(); ctx.arc(c, c, 64, 0, Math.PI * 2);
+    ctx.lineWidth = 6; ctx.strokeStyle = "#ffe28a"; ctx.stroke();
+  }
+  function star(x, y, r) {
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = i * Math.PI / 5, rr = i % 2 ? r * .45 : r;
+      ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+    }
+    ctx.closePath(); ctx.fill();
+  }
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    const cl = v => Math.max(0, Math.min(255, v));
+    const r = cl((n >> 16) + amt), g = cl(((n >> 8) & 255) + amt), b = cl((n & 255) + amt);
+    return "rgb(" + r + "," + g + "," + b + ")";
+  }
+
+  // ---------- audio ----------
+  let actx = null, soundOn = true;
+  function audio() {
+    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+    if (actx && actx.state === "suspended") actx.resume();
+    return actx;
+  }
+  function tone(freq, dur, type = "square", vol = .08, when = 0) {
+    if (!soundOn) return; const a = audio(); if (!a) return;
+    const t = a.currentTime + when;
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .02);
+  }
+  const tick = () => tone(1800 + Math.random() * 200, .03, "square", .05);
+  const ding = (i) => tone(880 + i * 40, .18, "triangle", .1);
+  function fanfare(big) {
+    const notes = big ? [523, 659, 784, 1047, 784, 1047, 1319] : [523, 659, 784, 1047];
+    notes.forEach((f, i) => { tone(f, .25, "sawtooth", .06, i * .12); tone(f / 2, .25, "triangle", .05, i * .12); });
+    applause(big ? 2.6 : 1.6);
+  }
+  function applause(dur) {
+    if (!soundOn) return; const a = audio(); if (!a) return;
+    const len = Math.floor(a.sampleRate * dur);
+    const buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) {
+      const env = Math.min(1, i / (a.sampleRate * .15)) * Math.pow(1 - i / len, 1.5);
+      d[i] = (Math.random() * 2 - 1) * env * (Math.random() < .3 ? 1 : .35);
+    }
+    const src = a.createBufferSource(); src.buffer = buf;
+    const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2200; bp.Q.value = .6;
+    const g = a.createGain(); g.gain.value = .22;
+    src.connect(bp).connect(g).connect(a.destination); src.start();
+  }
+
+  // ---------- spin logic ----------
+  const wrap = document.getElementById("wheelWrap");
+  const pointer = document.getElementById("pointer");
+  const spinBtn = document.getElementById("spinBtn");
+  const hostLine = document.getElementById("hostLine");
+  let rotation = 0, spinning = false, spins = 0, best = 0;
+
+  const indexAt = rot => {
+    const t = ((-rot) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+    return Math.floor(t / SEG) % N;
+  };
+  const easeOut = t => 1 - Math.pow(1 - t, 4);
+
+  function spin() {
+    if (spinning) return;
+    audio();
+    spinning = true; spinBtn.disabled = true; spinBtn.classList.remove("pulse");
+    wrap.classList.remove("idle"); wrap.classList.add("spinning");
+    hostLine.textContent = pick(HOST_SPIN);
+    resetBoard();
+
+    const target = Math.floor(Math.random() * N);
+    // land somewhere inside target sector (avoid edges)
+    const inside = (0.15 + Math.random() * 0.7) * SEG;
+    const desiredT = target * SEG + inside;             // pointer offset in wheel coords
+    const base = -desiredT;                             // rotation giving that offset
+    const turns = 5 + Math.floor(Math.random() * 3);
+    let end = base - Math.PI * 2 * Math.ceil((base - rotation) / (Math.PI * 2));
+    end += Math.PI * 2 * turns;
+    if (end - rotation < Math.PI * 2 * 4) end += Math.PI * 2;
+
+    const start = rotation, dist = end - start;
+    const dur = 5200 + Math.random() * 1200;
+    const t0 = performance.now();
+    let lastIdx = indexAt(start);
+
+    function frame(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      rotation = start + dist * easeOut(t);
+      canvas.style.transform = "rotate(" + rotation + "rad)";
+      const idx = indexAt(rotation);
+      if (idx !== lastIdx) {
+        lastIdx = idx; tick();
+        pointer.classList.remove("flick"); void pointer.offsetWidth; pointer.classList.add("flick");
+      }
+      if (t < 1) requestAnimationFrame(frame);
+      else finish(indexAt(rotation));
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- board ----------
+  const tilesEl = document.getElementById("tiles");
+  const excuseEl = document.getElementById("excuse");
+  const meterFill = document.getElementById("meterFill");
+  const meterVal = document.getElementById("meterVal");
+  const verdictEl = document.getElementById("verdict");
+  const letterEl = document.getElementById("letter");
+  const letterText = document.getElementById("letterText");
+
+  function resetBoard() {
+    tilesEl.innerHTML = "";
+    excuseEl.className = "excuse placeholder";
+    excuseEl.innerHTML = "Барабан вращается…";
+    meterFill.style.width = "0%"; meterVal.textContent = "—"; verdictEl.textContent = "";
+    letterEl.classList.remove("show");
+  }
+
+  function buildTiles(word) {
+    tilesEl.innerHTML = "";
+    const tiles = [];
+    for (const ch of word) {
+      const t = document.createElement("div");
+      if (ch === " ") { t.className = "tile gap"; tilesEl.appendChild(t); continue; }
+      t.className = "tile";
+      t.innerHTML = '<div class="in"><div class="f"></div><div class="b"></div></div>';
+      t.querySelector(".b").textContent = ch;
+      tilesEl.appendChild(t); tiles.push(t);
+    }
+    return tiles;
+  }
+
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  async function finish(idx) {
+    const s = SECTORS[idx];
+    const [text, plaus] = pickExcuse(s.name);
+    wrap.classList.remove("spinning"); wrap.classList.add("idle");
+    hostLine.textContent = s.jackpot ? pick(HOST_RESULT.jackpot) : pick(HOST_RESULT.normal).replace("%s", s.name);
+
+    // flip tiles
+    const tiles = buildTiles(s.name);
+    excuseEl.innerHTML = "Открываем буквы…";
+    for (let i = 0; i < tiles.length; i++) { tiles[i].classList.add("on"); ding(i); await wait(140); }
+
+    if (s.jackpot) {
+      const f = document.getElementById("flash");
+      f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+    }
+    fanfare(!!s.jackpot);
+    confetti(s.jackpot ? 260 : 120);
+
+    // type excuse
+    excuseEl.className = "excuse";
+    excuseEl.textContent = "";
+    const span = document.createElement("span"); excuseEl.appendChild(span);
+    const caret = document.createElement("span"); caret.className = "caret"; excuseEl.appendChild(caret);
+    for (let i = 0; i < text.length; i++) {
+      span.textContent += text[i];
+      if (i % 3 === 0) tone(300 + Math.random() * 80, .015, "square", .025);
+      await wait(18);
+    }
+    caret.remove();
+
+    meterFill.style.width = plaus + "%";
+    meterVal.textContent = plaus + "%";
+    verdictEl.textContent = verdictFor(plaus);
+
+    letterText.value = s.jackpot
+      ? "Привет!\n\nХочу взять day off 19 ноября. " + text + "\n\nВсе задачи закрою заранее. 20-го вернусь отдохнувшим (нет).\n\nСпасибо за понимание!"
+      : "Добрый день!\n\nХотел бы взять day off 19 ноября. " + text + "\n\nВсе срочные задачи закрою заранее, по критичным вопросам буду на связи.\n\nСпасибо за понимание!";
+    letterEl.classList.add("show");
+
+    spins++; best = Math.max(best, plaus);
+    document.getElementById("statSpins").textContent = spins;
+    document.getElementById("statBest").textContent = best + "%";
+
+    spinning = false; spinBtn.disabled = false; spinBtn.classList.add("pulse");
+    spinBtn.textContent = "ЕЩЁ РАЗ!";
+  }
+
+  // ---------- confetti ----------
+  const cv = document.getElementById("confetti"), cx = cv.getContext("2d");
+  let parts = [], confettiRunning = false;
+  function sizeConfetti() { cv.width = innerWidth; cv.height = innerHeight; }
+  function confetti(n) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const colors = ["#ffc93c", "#ff2e88", "#27e1ff", "#3dff8a", "#ffffff", "#e8173b"];
+    for (let i = 0; i < n; i++) {
+      parts.push({
+        x: innerWidth * (0.2 + Math.random() * 0.6), y: innerHeight * 0.35,
+        vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4,
+        w: 6 + Math.random() * 6, h: 8 + Math.random() * 10,
+        r: Math.random() * 6, vr: (Math.random() - .5) * .4,
+        c: pick(colors), life: 0,
+      });
+    }
+    if (!confettiRunning) { confettiRunning = true; requestAnimationFrame(stepConfetti); }
+  }
+  function stepConfetti() {
+    cx.clearRect(0, 0, cv.width, cv.height);
+    parts = parts.filter(p => p.y < cv.height + 40 && p.life < 400);
+    for (const p of parts) {
+      p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life++;
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r);
+      cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r * 2)));
+      cx.restore();
+    }
+    if (parts.length) requestAnimationFrame(stepConfetti);
+    else { confettiRunning = false; cx.clearRect(0, 0, cv.width, cv.height); }
+  }
+
+  // ---------- countdown ----------
+  const cd = document.getElementById("countdown");
+  function updateCountdown() {
+    const now = new Date();
+    const target = new Date(now.getFullYear(), 10, 19, 0, 0, 0);
+    const end = new Date(now.getFullYear(), 10, 20, 0, 0, 0);
+    if (now >= target && now < end) { cd.textContent = "СЕГОДНЯ!"; return; }
+    if (now >= end) target.setFullYear(target.getFullYear() + 1);
+    let s = Math.floor((target - now) / 1000);
+    const d = Math.floor(s / 86400); s %= 86400;
+    const pad = v => String(v).padStart(2, "0");
+    const hms = pad(Math.floor(s / 3600)) + ":" + pad(Math.floor(s % 3600 / 60)) + ":" + pad(s % 60);
+    cd.textContent = d > 0 ? d + " д " + hms : hms;
+  }
+
+  // ---------- wiring ----------
+  spinBtn.addEventListener("click", spin);
+  document.getElementById("againBtn").addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" }); spin();
+  });
+  document.getElementById("copyBtn").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(letterText.value); }
+    catch (e) { letterText.select(); document.execCommand("copy"); }
+    const t = document.getElementById("toast"); t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1600);
+  });
+  const soundBtn = document.getElementById("soundBtn");
+  soundBtn.addEventListener("click", () => {
+    soundOn = !soundOn; soundBtn.textContent = soundOn ? "🔊" : "🔇";
+  });
+  addEventListener("resize", sizeConfetti);
+  addEventListener("keydown", e => {
+    if ((e.code === "Space" || e.code === "Enter") && document.activeElement === document.body) { e.preventDefault(); spin(); }
+  });
+
+  sizeConfetti();
+  updateCountdown(); setInterval(updateCountdown, 1000);
+  drawWheel();
+  if (document.fonts && document.fonts.load) {
+    document.fonts.load("30px 'Russo One'").then(drawWheel).catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
