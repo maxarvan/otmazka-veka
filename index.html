@@ -416,8 +416,16 @@
 <button class="sound-toggle" id="soundBtn" aria-label="Звук">🔊</button>
 <div class="toast" id="toast">Скопировано!</div>
 
+<!-- Metrics: GoatCounter (private dashboard, no cookies). Localhost visits are ignored. -->
+<script data-goatcounter="https://otmazka-veka.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script>
 (() => {
+  function track(path, title) {
+    try {
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path, title: title || path, event: true });
+    } catch (e) {}
+  }
+
   // ---------- data ----------
   const SECTORS = [
     { name: "ЗДОРОВЬЕ",  color: "#e8173b", text: "#fff" },
@@ -664,6 +672,7 @@
     wrap.classList.remove("idle"); wrap.classList.add("spinning");
     hostLine.textContent = pick(HOST_SPIN);
     resetBoard();
+    track("spin", "Вращение барабана");
 
     const target = Math.floor(Math.random() * N);
     // land somewhere inside target sector (avoid edges)
@@ -731,6 +740,7 @@
   async function finish(idx) {
     const s = SECTORS[idx];
     const [text, plaus] = pickExcuse(s.name);
+    track("sector-" + s.name, "Выпал сектор: " + s.name);
     wrap.classList.remove("spinning"); wrap.classList.add("idle");
     hostLine.textContent = s.jackpot ? pick(HOST_RESULT.jackpot) : pick(HOST_RESULT.normal).replace("%s", s.name);
 
@@ -827,9 +837,10 @@
     window.scrollTo({ top: 0, behavior: "smooth" }); spin();
   });
   document.getElementById("copyBtn").addEventListener("click", async () => {
+    track("copy-letter", "Скопировали письмо начальнику");
     try { await navigator.clipboard.writeText(letterText.value); }
     catch (e) { letterText.select(); document.execCommand("copy"); }
-    const t = document.getElementById("toast"); t.classList.add("show");
+    const t =document.getElementById("toast"); t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), 1600);
   });
   const soundBtn = document.getElementById("soundBtn");
